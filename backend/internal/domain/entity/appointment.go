@@ -21,8 +21,6 @@ type Appointment struct {
 	Notes     string            `json:"notes,omitempty"`
 	CreatedAt time.Time         `json:"created_at"`
 	UpdatedAt time.Time         `json:"updated_at"`
-	Student   *Student          `json:"student,omitempty"` // 学生情報への参照（必要に応じて）
-	Company   *Company          `json:"company,omitempty"` // 企業情報への参照（必要に応じて）
 }
 
 func NewAppointment(studentID, companyID int64, dateTime time.Time, notes string) *Appointment {
