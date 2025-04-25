@@ -10,7 +10,6 @@ type Student struct {
 	Major          string    `json:"major"`
 	CreatedAt      time.Time `json:"created_at"`
 	UpdatedAt      time.Time `json:"updated_at"`
-	User           *User     `json:"user,omitempty"` // ユーザー情報への参照（必要に応じて）
 }
 
 func NewStudent(userID int64, university string, graduationYear int, major string) *Student {

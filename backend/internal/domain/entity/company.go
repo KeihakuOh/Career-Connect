@@ -12,7 +12,6 @@ type Company struct {
 	Logo        string    `json:"logo,omitempty"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
-	User        *User     `json:"user,omitempty"` // ユーザー情報への参照（必要に応じて）
 }
 
 func NewCompany(userID int64, description, industry, location, website string) *Company {

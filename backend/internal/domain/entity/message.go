@@ -9,8 +9,6 @@ type Message struct {
 	Content    string     `json:"content"`
 	CreatedAt  time.Time  `json:"created_at"`
 	ReadAt     *time.Time `json:"read_at,omitempty"`
-	Sender     *User      `json:"sender,omitempty"`   // 送信者情報への参照（必要に応じて）
-	Receiver   *User      `json:"receiver,omitempty"` // 受信者情報への参照（必要に応じて）
 }
 
 func NewMessage(senderID, receiverID int64, content string) *Message {
