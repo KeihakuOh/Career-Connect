@@ -8,15 +8,15 @@ import (
 	"github.com/KeihakuOh/career-connect/internal/domain/repository"
 	"github.com/KeihakuOh/career-connect/internal/infrastructure/auth"
 	"github.com/KeihakuOh/career-connect/internal/usecase"
-	"golang.org/x/crypto/bcrypt"
 )
 
 // SignupInteractor はユーザー登録に特化したユースケースの実装
 type SignupInteractor struct {
-	userRepo    repository.UserRepository
-	studentRepo repository.StudentRepository
-	companyRepo repository.CompanyRepository
-	jwtManager  *auth.JWTManager
+	userRepo        repository.UserRepository
+	studentRepo     repository.StudentRepository
+	companyRepo     repository.CompanyRepository
+	jwtManager      *auth.JWTManager
+	passwordManager *auth.PasswordManager
 }
 
 // NewSignupInteractor は新しいSignupInteractorを作成する
@@ -25,12 +25,14 @@ func NewSignupInteractor(
 	studentRepo repository.StudentRepository,
 	companyRepo repository.CompanyRepository,
 	jwtManager *auth.JWTManager,
+	passwordManager *auth.PasswordManager,
 ) usecase.SignupUseCase {
 	return &SignupInteractor{
-		userRepo:    userRepo,
-		studentRepo: studentRepo,
-		companyRepo: companyRepo,
-		jwtManager:  jwtManager,
+		userRepo:        userRepo,
+		studentRepo:     studentRepo,
+		companyRepo:     companyRepo,
+		jwtManager:      jwtManager,
+		passwordManager: passwordManager,
 	}
 }
 
@@ -47,8 +49,8 @@ func (i *SignupInteractor) Signup(ctx context.Context, input *usecase.SignupInpu
 		return nil, errors.New("email already exists")
 	}
 
-	// パスワードをハッシュ化
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
+	// パスワードのバリデーションとハッシュ化
+	hashedPassword, err := i.passwordManager.HashPassword(input.Password)
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +58,7 @@ func (i *SignupInteractor) Signup(ctx context.Context, input *usecase.SignupInpu
 	// ユーザーエンティティ作成
 	user = entity.NewUser(
 		input.Email,
-		string(hashedPassword),
+		hashedPassword,
 		input.UserType,
 		input.Name,
 	)
