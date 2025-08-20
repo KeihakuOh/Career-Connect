@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: labcareer_db
+    environment:
+      POSTGRES_USER: ${DB_USER:-labcareer}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-labcareer_pass}
+      POSTGRES_DB: ${DB_NAME:-labcareer_db}
+      TZ: Asia/Tokyo
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-labcareer}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - labcareer_network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: labcareer_backend
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./backend:/app
+      - go_modules:/go/pkg/mod
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: ${DB_USER:-labcareer}
+      DB_PASSWORD: ${DB_PASSWORD:-labcareer_pass}
+      DB_NAME: ${DB_NAME:-labcareer_db}
+      JWT_SECRET: ${JWT_SECRET:-dev_jwt_secret_key}
+      PORT: 8080
+      APP_ENV: development
+      TZ: Asia/Tokyo
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - labcareer_network
+    command: air
+
+volumes:
+  postgres_data:
+  go_modules:
+
+networks:
+  labcareer_network:
+    driver: bridge
